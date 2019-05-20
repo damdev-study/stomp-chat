@@ -1,6 +1,7 @@
 package com.damdev.stompchat;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -16,21 +17,23 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class ChatController {
 
-  @MessageMapping("/chat.sendMessage")
-  @SendTo("/topic/public")
+  @MessageMapping("/chat/sendMessage/{room}")
+  @SendTo("/topic/public/{room}")
   public ChatMessage sendMessage(@Payload ChatMessage chatMessage,
-    SimpMessageHeaderAccessor headerAccessor) {
+    SimpMessageHeaderAccessor headerAccessor,
+      @DestinationVariable String room) {
     log.info(headerAccessor + "");
     return chatMessage;
   }
 
-  @MessageMapping("/chat.addUser")
-  @SendTo("/topic/public")
+  @MessageMapping("/chat/addUser/{room}")
+  @SendTo("/topic/public/{room}")
   public ChatMessage addUser(@Payload ChatMessage chatMessage,
-    SimpMessageHeaderAccessor headerAccessor) {
+    SimpMessageHeaderAccessor headerAccessor,
+      @DestinationVariable String room) {
     // Add username in web socket session
     headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
-    headerAccessor.getSessionAttributes().put("room", 1);
+    headerAccessor.getSessionAttributes().put("room", room);
     return chatMessage;
   }
 
